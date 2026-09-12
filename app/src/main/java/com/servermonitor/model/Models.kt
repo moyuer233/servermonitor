@@ -10,7 +10,8 @@ data class ServerConfig(
     val username: String = "root",
     val privateKey: String = "",
     val useIpv6: Boolean = true,
-    val showOnHome: Boolean = true
+    val showOnHome: Boolean = true,
+    val refreshSeconds: Int = 10
 )
 
 data class ServiceConfig(

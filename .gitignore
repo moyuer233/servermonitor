@@ -20,8 +20,9 @@ _tmp_key*
 id_ed25519_phone*
 _tmp_jschtest/
 servermonitor_config.json
-头像.jpg
+头像.*
 AGENTS.md
+升级需求.txt
 软件需求.txt
 *.log
 

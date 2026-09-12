@@ -34,6 +34,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.servermonitor.MainViewModel
@@ -60,6 +62,7 @@ fun ServerScreen(vm: MainViewModel) {
     Column(Modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text("服务器", fontWeight = FontWeight.SemiBold) },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             actions = {
                 IconButton(onClick = { showAddDialog = true }) {
                     Icon(Icons.Filled.Add, contentDescription = "添加服务器")
@@ -162,6 +165,7 @@ private fun ServerEditDialog(
     var privateKey by remember { mutableStateOf(initial?.privateKey ?: "") }
     var useIpv6 by remember { mutableStateOf(initial?.useIpv6 ?: true) }
     var showOnHome by remember { mutableStateOf(initial?.showOnHome ?: true) }
+    var refreshSeconds by remember { mutableStateOf((initial?.refreshSeconds ?: 10).toString()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -187,6 +191,10 @@ private fun ServerEditDialog(
                     Switch(checked = showOnHome, onCheckedChange = { showOnHome = it })
                 }
                 OutlinedTextField(
+                    refreshSeconds, { refreshSeconds = it.filter { c -> c.isDigit() } },
+                    label = { Text("状态更新间隔（秒，2-300）") }, singleLine = true
+                )
+                OutlinedTextField(
                     privateKey, { privateKey = it }, label = { Text("SSH 私钥") },
                     minLines = 5
                 )
@@ -202,7 +210,8 @@ private fun ServerEditDialog(
                         username = username.trim(),
                         privateKey = privateKey.trim(),
                         useIpv6 = useIpv6,
-                        showOnHome = showOnHome
+                        showOnHome = showOnHome,
+                        refreshSeconds = refreshSeconds.toIntOrNull()?.coerceIn(2, 300) ?: 10
                     )
                 )
             }) { Text("保存") }

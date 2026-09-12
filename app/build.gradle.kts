@@ -4,6 +4,19 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+/** 构建时读取 git 短 SHA（如 2bf0164），注入 BuildConfig.GIT_COMMIT；git 不可用时回退 unknown */
+fun gitCommitSha(): String = try {
+    val p = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        .directory(rootProject.projectDir)
+        .redirectErrorStream(true)
+        .start()
+    val out = p.inputStream.bufferedReader().use { it.readText() }.trim()
+    p.waitFor()
+    out.ifBlank { "unknown" }
+} catch (e: Exception) {
+    "unknown"
+}
+
 android {
     namespace = "com.servermonitor"
     compileSdk = 35
@@ -12,8 +25,9 @@ android {
         applicationId = "com.servermonitor"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
+        buildConfigField("String", "GIT_COMMIT", "\"${gitCommitSha()}\"")
     }
 
     buildTypes {
@@ -35,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {

@@ -46,6 +46,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -77,10 +78,12 @@ fun HomeScreen(vm: MainViewModel) {
     var deletingService by remember { mutableStateOf<ServiceConfig?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    val activeId = vm.activeServer?.id
+    LaunchedEffect(activeId) {
         vm.refreshStatus()
         while (true) {
-            delay(10000)
+            val intervalMs = vm.activeServer?.refreshSeconds?.coerceIn(2, 300)?.times(1000L) ?: 10000L
+            delay(intervalMs)
             vm.refreshStatus()
         }
     }
@@ -88,6 +91,7 @@ fun HomeScreen(vm: MainViewModel) {
     Column(Modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text("服务器监控", fontWeight = FontWeight.SemiBold) },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             actions = {
                 IconButton(onClick = { vm.refreshStatus() }) {
                     Icon(Icons.Filled.Refresh, contentDescription = "刷新")

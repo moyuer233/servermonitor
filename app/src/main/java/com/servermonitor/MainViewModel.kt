@@ -2,6 +2,7 @@ package com.servermonitor
 
 import android.app.Application
 import android.net.Uri
+import android.os.Process
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +15,9 @@ import com.servermonitor.model.ServerConfig
 import com.servermonitor.model.ServiceConfig
 import com.servermonitor.model.SystemStatus
 import com.servermonitor.ssh.SshManager
+import com.google.gson.JsonParser
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +38,68 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
+
+    // 主页当前监控的服务器（勾选「显示在主页」的第一台）
+    val activeServer: ServerConfig? get() = config.servers.firstOrNull { it.showOnHome }
+
+    // ---- 更新检查（手动触发，网络访问在 IO 线程） ----
+    suspend fun fetchLatestRelease(): Pair<String, String>? =
+        withContext(Dispatchers.IO) { queryLatestRelease() }
+
+    private fun queryLatestRelease(): Pair<String, String>? {
+        val url = URL("https://api.github.com/repos/qwqZYLqwq/servermonitor/releases/latest")
+        val conn = url.openConnection() as HttpURLConnection
+        try {
+            conn.connectTimeout = 10000
+            conn.readTimeout = 10000
+            conn.setRequestProperty("Accept", "application/vnd.github+json")
+            if (conn.responseCode == 404) return null // 仓库尚无 Release
+            if (conn.responseCode != 200) throw Exception("HTTP ${conn.responseCode}")
+            val body = conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+            val json = JsonParser.parseString(body).asJsonObject
+            val tag = json.get("tag_name")?.takeIf { !it.isJsonNull }?.asString ?: return null
+            val page = json.get("html_url")?.takeIf { !it.isJsonNull }?.asString
+                ?: "https://github.com/qwqZYLqwq/servermonitor/releases"
+            return tag to page
+        } finally {
+            conn.disconnect()
+        }
+    }
+
+    fun isNewer(latestTag: String, currentVersion: String): Boolean {
+        val l = versionParts(latestTag.removePrefix("v"))
+        val c = versionParts(currentVersion)
+        for (i in 0 until maxOf(l.size, c.size)) {
+            val a = l.getOrElse(i) { 0 }
+            val b = c.getOrElse(i) { 0 }
+            if (a != b) return a > b
+        }
+        return false
+    }
+
+    private fun versionParts(s: String): List<Int> = s.split(".").mapNotNull { it.toIntOrNull() }
+
+    // ---- 开发者调试：导出运行日志 ----
+    fun exportLogs(uri: Uri, onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    val pid = Process.myPid()
+                    val proc = ProcessBuilder("logcat", "-d", "-t", "3000", "--pid=$pid")
+                        .redirectErrorStream(true).start()
+                    val text = proc.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                    proc.waitFor()
+                    val out = getApplication<Application>().contentResolver.openOutputStream(uri, "wt")
+                        ?: error("无法写入文件")
+                    out.use {
+                        it.write(text.toByteArray(Charsets.UTF_8))
+                        it.flush()
+                    }
+                }.isSuccess
+            }
+            onDone(ok)
+        }
+    }
 
     fun dismissError() { errorMessage = null }
 
