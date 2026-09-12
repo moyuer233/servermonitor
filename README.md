@@ -10,6 +10,9 @@ _✨ 用 SSH 远程监控 Android / Linux 主机的运行状态，并能启停�
   <img src="https://img.shields.io/github/license/qwqZYLqwq/servermonitor" alt="license">
   <img src="https://img.shields.io/github/v/release/qwqZYLqwq/servermonitor" alt="release">
   <img src="https://img.shields.io/github/downloads/qwqZYLqwq/servermonitor/total" alt="downloads">
+  <img src="https://img.shields.io/github/commit-activity/m/qwqZYLqwq/servermonitor" alt="commit activity">
+  <img src="https://img.shields.io/github/last-commit/qwqZYLqwq/servermonitor" alt="last commit">
+  <br>
   <img src="https://img.shields.io/badge/platform-Android-3DDC84" alt="platform">
   <img src="https://img.shields.io/badge/Kotlin-Compose-7F52FF" alt="Kotlin">
 </p>
