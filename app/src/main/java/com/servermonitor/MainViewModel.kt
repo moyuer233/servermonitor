@@ -42,49 +42,28 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         configManager.save(c)
     }
 
-    // ---- 服务器 CRUD ----
-    fun addServer(s: ServerConfig) {
-        val c = config
-        c.servers.add(s)
-        persist(c)
-    }
+    // ---- 服务器 CRUD（按稳定 id 定位，改名/增删不再受列表索引错位影响）----
+    fun addServer(s: ServerConfig) =
+        persist(config.copy(servers = config.servers + s))
 
-    fun updateServer(index: Int, s: ServerConfig) {
-        val c = config
-        if (index in c.servers.indices) c.servers[index] = s
-        persist(c)
-    }
+    fun updateServer(id: String, s: ServerConfig) =
+        persist(config.copy(servers = config.servers.map { if (it.id == id) s.copy(id = id) else it }))
 
-    fun removeServer(index: Int) {
-        val c = config
-        if (index in c.servers.indices) c.servers.removeAt(index)
-        persist(c)
-    }
+    fun removeServer(id: String) =
+        persist(config.copy(servers = config.servers.filterNot { it.id == id }))
 
-    fun setServerShowOnHome(index: Int, show: Boolean) {
-        val c = config
-        if (index in c.servers.indices) c.servers[index] = c.servers[index].copy(showOnHome = show)
-        persist(c)
-    }
+    fun setServerShowOnHome(id: String, show: Boolean) =
+        persist(config.copy(servers = config.servers.map { if (it.id == id) it.copy(showOnHome = show) else it }))
 
     // ---- 服务 CRUD ----
-    fun addService(s: ServiceConfig) {
-        val c = config
-        c.services.add(s)
-        persist(c)
-    }
+    fun addService(s: ServiceConfig) =
+        persist(config.copy(services = config.services + s))
 
-    fun updateService(index: Int, s: ServiceConfig) {
-        val c = config
-        if (index in c.services.indices) c.services[index] = s
-        persist(c)
-    }
+    fun updateService(id: String, s: ServiceConfig) =
+        persist(config.copy(services = config.services.map { if (it.id == id) s.copy(id = id) else it }))
 
-    fun removeService(index: Int) {
-        val c = config
-        if (index in c.services.indices) c.services.removeAt(index)
-        persist(c)
-    }
+    fun removeService(id: String) =
+        persist(config.copy(services = config.services.filterNot { it.id == id }))
 
     // ---- 状态采集 ----
     fun refreshStatus() {
@@ -100,8 +79,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 val output = withContext(Dispatchers.IO) {
                     ssh.execute(server, StatusParser.STATUS_COMMAND)
                 }
-                status = StatusParser.parseStatus(output)
-                listeningPorts = StatusParser.parseListeningPorts(output)
+                val parsedStatus = StatusParser.parseStatus(output)
+                val parsedPorts = StatusParser.parseListeningPorts(output)
+                // 值未变化不提交 state，避免每 10s 无谓重组打断滑动
+                if (parsedStatus != status) status = parsedStatus
+                if (parsedPorts != listeningPorts) listeningPorts = parsedPorts
             } catch (e: Exception) {
                 errorMessage = "连接失败：${e.message ?: e.javaClass.simpleName}"
             } finally {

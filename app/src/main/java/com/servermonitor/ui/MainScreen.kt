@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.servermonitor.MainViewModel
@@ -27,6 +28,7 @@ import com.servermonitor.MainViewModel
 @Composable
 fun MainScreen(vm: MainViewModel) {
     var selectedTab by rememberSaveable { mutableStateOf(0) }
+    val saveableStateHolder = rememberSaveableStateHolder()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(vm.errorMessage) {
@@ -62,10 +64,12 @@ fun MainScreen(vm: MainViewModel) {
         }
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            when (selectedTab) {
-                0 -> HomeScreen(vm)
-                1 -> ServerScreen(vm)
-                2 -> AboutScreen(vm)
+            saveableStateHolder.SaveableStateProvider(selectedTab) {
+                when (selectedTab) {
+                    0 -> HomeScreen(vm)
+                    1 -> ServerScreen(vm)
+                    2 -> AboutScreen(vm)
+                }
             }
         }
     }

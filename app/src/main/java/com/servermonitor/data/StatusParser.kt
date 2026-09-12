@@ -14,7 +14,7 @@ echo '____GPU____'; grep 'DRIVER' /sys/class/drm/card0/device/uevent 2>/dev/null
 echo '____BTEMP____'; cat /sys/class/power_supply/battery/temp 2>/dev/null
 echo '____CTEMP____'; cat /sys/class/thermal/thermal_zone3/temp 2>/dev/null
 echo '____BATT____'; cat /sys/class/power_supply/battery/capacity 2>/dev/null
-echo '____STATUS____'; cat /sys/class/power_supply/battery/status 2>/dev/null
+echo '____STATUS____'; cat /sys/class/power_supply/battery/status 2>/dev/null; cat /sys/class/power_supply/main/status 2>/dev/null; cat /sys/class/power_supply/AC/online 2>/dev/null; cat /sys/class/power_supply/usb/online 2>/dev/null
 echo '____PORTS____'; ss -tln 2>/dev/null | grep LISTEN
 """
 
@@ -57,8 +57,10 @@ echo '____PORTS____'; ss -tln 2>/dev/null | grep LISTEN
         cpuTemp = (section(raw, "____CTEMP____").toLongOrNull() ?: 0L) / 1000.0
         battTemp = (section(raw, "____BTEMP____").toLongOrNull() ?: 0L) / 10.0
         battPct = section(raw, "____BATT____").toIntOrNull() ?: 0
-        val st = section(raw, "____STATUS____").lowercase()
-        charging = st == "charging" || st == "full"
+        val stLines = section(raw, "____STATUS____").lines().map { it.trim().lowercase() }
+        charging = !stLines.contains("not charging") && stLines.any {
+            it == "charging" || it == "full" || it == "charged" || it == "fully charged" || it == "1"
+        }
 
         return SystemStatus(
             cpuUsage = cpuUsage,

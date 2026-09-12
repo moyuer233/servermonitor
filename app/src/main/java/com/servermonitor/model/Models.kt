@@ -1,6 +1,9 @@
 package com.servermonitor.model
 
+import java.util.UUID
+
 data class ServerConfig(
+    val id: String = UUID.randomUUID().toString(),
     val name: String = "",
     val host: String = "",
     val port: Int = 22,
@@ -11,6 +14,7 @@ data class ServerConfig(
 )
 
 data class ServiceConfig(
+    val id: String = UUID.randomUUID().toString(),
     val name: String = "",
     val port: Int = 0,
     val startCmd: String = "",
@@ -19,8 +23,8 @@ data class ServiceConfig(
 )
 
 data class AppConfig(
-    val servers: MutableList<ServerConfig> = mutableListOf(),
-    val services: MutableList<ServiceConfig> = mutableListOf()
+    val servers: List<ServerConfig> = emptyList(),
+    val services: List<ServiceConfig> = emptyList()
 )
 
 data class SystemStatus(

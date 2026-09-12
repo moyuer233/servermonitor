@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -73,13 +74,16 @@ fun AboutScreen(vm: MainViewModel) {
         ) {
             Spacer(Modifier.height(24.dp))
             Box(
-                Modifier.size(112.dp).clip(CircleShape),
+                Modifier
+                    .size(112.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(R.drawable.avatar),
                     contentDescription = "头像",
-                    modifier = Modifier.fillMaxSize().padding(6.dp),
+                    modifier = Modifier.fillMaxWidth().clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
             }
