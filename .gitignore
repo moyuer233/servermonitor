@@ -1,0 +1,30 @@
+# Gradle
+.gradle/
+build/
+**/build/
+.kotlin/
+
+# Android / IDE
+.idea/
+*.iml
+.vscode/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 敏感与本地文件（勿提交）
+*.key
+_rsa_newkey*
+_tmp_key*
+id_ed25519_phone*
+_tmp_jschtest/
+servermonitor_config.json
+头像.jpg
+AGENTS.md
+软件需求.txt
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
