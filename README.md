@@ -1,21 +1,9 @@
-<div align="center">
-
 # 服务器监控 (ServerMonitor)
 
 _✨ 用 SSH 远程监控 Android / Linux 主机的运行状态，并能启停服务 ✨_
 
-</div>
-
-<p align="center">
-  <img src="https://img.shields.io/github/license/qwqZYLqwq/servermonitor" alt="license">
-  <img src="https://img.shields.io/github/v/release/qwqZYLqwq/servermonitor" alt="release">
-  <img src="https://img.shields.io/github/downloads/qwqZYLqwq/servermonitor/total" alt="downloads">
-  <img src="https://img.shields.io/github/commit-activity/m/qwqZYLqwq/servermonitor" alt="commit activity">
-  <img src="https://img.shields.io/github/last-commit/qwqZYLqwq/servermonitor" alt="last commit">
-  <br>
-  <img src="https://img.shields.io/badge/platform-Android-3DDC84" alt="platform">
-  <img src="https://img.shields.io/badge/Kotlin-Compose-7F52FF" alt="Kotlin">
-</p>
+![license](https://img.shields.io/github/license/qwqZYLqwq/servermonitor) ![release](https://img.shields.io/github/v/release/qwqZYLqwq/servermonitor) ![downloads](https://img.shields.io/github/downloads/qwqZYLqwq/servermonitor/total) ![commit activity](https://img.shields.io/github/commit-activity/m/qwqZYLqwq/servermonitor) ![last commit](https://img.shields.io/github/last-commit/qwqZYLqwq/servermonitor)
+![platform](https://img.shields.io/badge/platform-Android-3DDC84) ![Kotlin](https://img.shields.io/badge/Kotlin-Compose-7F52FF)
 
 一款 Android 服务器监控应用：通过 SSH 连接远程服务器，实时查看 CPU / GPU / 内存 / 温度 / 电池等运行状态，
 并可直接远程启动、停止、重启服务，支持 IPv4 与 IPv6。
